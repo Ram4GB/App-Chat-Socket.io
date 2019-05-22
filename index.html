@@ -36,7 +36,7 @@
             </div>
             <div
               id="typing"
-              style="margin-top: 20px;height: 100px;overflow-y: scroll  "
+              style="margin-top: 20px;height: 100px;overflow-y: scroll;padding-left: 20px"
             ></div>
           </div>
         </div>
@@ -124,19 +124,19 @@
         if (data.id == localStorage.getItem("id"))
           $("#chat-box").append(`<div
                 style="text-align: right"
-                class="alert alert-warning"
+                class="alert alert-warning word_wrap"
                 role="alert"
               >
                 ${data.message}
                 <span
-                  style="border:1px solid black;padding:5px 10px;border-radius:5px;margin:4px"
+                  style="border:1px solid black;padding:5px 10px;border-radius:5px;margin:4px;"
                   >${data.user}</span
                 >
               </div>`);
         else
           $("#chat-box").append(`<div
                 style="text-align: left"
-                class="alert alert-success"
+                class="alert alert-success word_wrap"
                 role="alert"
               >
               <span

@@ -32,3 +32,6 @@ form.form {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+.word_wrap {
+  word-wrap: break-word;
+}
