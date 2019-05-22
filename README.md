@@ -2,7 +2,7 @@
 https://ram4gb-qbd.herokuapp.com
 Hi there! This is my app chat.
 How to user
-  +Enter your name in textbox 'Enter user'
+  +Enter your name in textbox 'Enter user' \n
   +Enter you text in textbox 'Enter text'
   +Then click sent
 Feature:  
