@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12 col-md-3">
+          <p
+            style="text-align: center;font-size: 1.3em;color:tomato"
+            id="number_online"
+          ></p>
+          <div
+            style="border: 3px solid #999;margin:20px;height: 300px;overflow-y: scroll;border-radius: 5px"
+          >
+            <ul class="list-group" id="online"></ul>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+          <div>
+            <div style="text-align: center;font-size: 1.3em;color:tomato">
+              Who is typing
+            </div>
+            <div id="typing" style="margin-top: 20px"></div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <p style="text-align: center;font-size: 1.3em;color:tomato">
+            Chat here
+          </p>
+          <div
+            style="margin: 20px;border:3px solid #999;padding:20px;overflow-y:scroll;height: 300px;border-radius: 5px"
+          >
+            <div id="chat-box"></div>
+          </div>
+          <form class="form row" action="">
+            <input
+              id="user"
+              placeholder="User..."
+              class="col-2"
+              type=""
+              name=""
+              id=""
+            />
+            <input
+              placeholder="Text here..."
+              class="col-8"
+              type="text"
+              id="text"
+            />
+            <button class="col-2 btn btn-primary" id="btn">Send</button>
+          </form>
+        </div>
+      </div>
+      <h3
+        class="h3"
+        style="position: fixed;bottom:0px;left:50px;font-family:fantasy"
+      >
+        RAM4GB
+      </h3>
+    </div>
+    <div id="app"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      //LOGIN
+      socket.emit("LOGIN");
+      socket.on("LOGIN", function(data) {
+        localStorage.setItem("id", data.id);
+        $("#online").append(
+          `<li style="text-align:center"  class="list-group-item">${
+            data.id
+          } is Connected ${new Date().toLocaleTimeString()}</li>`
+        );
+      });
+      socket.on("GET_ONLINE", function(data) {
+        $("#number_online").text(`Number user online is ${data.number}`);
+      });
+      socket.on("DISCONNECTED", function(data) {
+        $("#online").append(
+          `<li style="text-align:center" class="list-group-item">${
+            data.id
+          } is Disconnected ${new Date().toLocaleTimeString()}</li>`
+        );
+        $("#number_online").text(`Number user online is ${data.number}`);
+      });
+      //GỬI MESSAGE ĐI
+      $("#btn").click(e => {
+        e.preventDefault();
+        if ($("#user").val() !== "") {
+          socket.emit("SEND_MESSAGE", {
+            user: $("#user").val(),
+            message: $("#text").val(),
+            id: localStorage.getItem("id")
+          });
+          $("#text").val("");
+        } else {
+          socket.emit("SEND_MESSAGE", {
+            user: `${localStorage.getItem("id")}`,
+            message: $("#text").val(),
+            id: localStorage.getItem("id")
+          });
+          $("#text").val("");
+        }
+      });
+      //NHẬN MESSAGE VÀ HIỂN THỊ
+      socket.on("SERVER_SEND_MESSAGE", function(data) {
+        console.log(data.id + " " + localStorage.getItem("id"));
+        if (data.id == localStorage.getItem("id"))
+          $("#chat-box").append(`<div
+                style="text-align: right"
+                class="alert alert-warning"
+                role="alert"
+              >
+                ${data.message}
+                <span
+                  style="border:1px solid black;padding:5px 10px;border-radius:5px;margin:4px"
+                  >${data.user}</span
+                >
+              </div>`);
+        else
+          $("#chat-box").append(`<div
+                style="text-align: left"
+                class="alert alert-success"
+                role="alert"
+              >
+              <span
+                  style="border:1px solid black;padding:5px 10px;border-radius:5px;margin:4px"
+                  >${data.user}</span
+                >
+                ${data.message}
+              </div>`);
+      });
+      //KHI ĐANG TYPE
+      $("#text").keypress(function() {
+        if ($("#user").val() !== "") {
+          socket.emit("TYPING", $("#user").val());
+        } else {
+          socket.emit("TYPING", "someone");
+        }
+      });
+      //NHẬN DIỆN NGƯỜI TYPING
+      socket.on("TYPING", function(data) {
+        clearTimeout(c);
+        let user = $(`#${localStorage.getItem("id")}`);
+        if (user[0]) {
+          user.text(`${data} is typing...`);
+        } else {
+          $("#typing").append(
+            `<p style="color:blue;font-size:1.2em" id="${localStorage.getItem(
+              "id"
+            )}">${data} is typing...</p>`
+          );
+        }
+        var c = setTimeout(function() {
+          $(`#${localStorage.getItem("id")}`).remove();
+        }, 1000);
+      });
+      //SCROLL DOWN
+    </script>
+  </body>
+</html>
